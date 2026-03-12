@@ -1,0 +1,10 @@
+flask==3.0.3
+flask-cors==4.0.1
+google-generativeai==0.7.2
+ultralytics==8.2.87
+easyocr==1.7.1
+opencv-python-headless==4.10.0.84
+Pillow==10.4.0
+numpy==1.26.4
+scipy==1.13.1
+filterpy==1.4.5

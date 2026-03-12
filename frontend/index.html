@@ -1,557 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traffic Surveillance System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrafficSurveillance</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-traffic-light"></i>
-                    <h1>Traffic<span>Surveillance</span></h1>
-                </div>
-                <nav class="navbar">
-                    <ul>
-                        <li><a href="#" class="nav-link active" data-page="upload"><i class="fas fa-upload"></i> Upload</a></li>
-                        <li><a href="#" class="nav-link" data-page="processing"><i class="fas fa-cogs"></i> Processing</a></li>
-                        <li><a href="#" class="nav-link" data-page="output"><i class="fas fa-car"></i> Vehicles</a></li>
-                        <li><a href="#" class="nav-link" data-page="report"><i class="fas fa-file-alt"></i> Reports</a></li>
-                        <li><a href="#" class="nav-link" data-page="dashboard"><i class="fas fa-chart-bar"></i> Dashboard</a></li>
-                    </ul>
-                </nav>
-                <div class="user-info">
-                    <span class="user-name">Admin</span>
-                    <div class="user-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <i class="fas fa-traffic-light"></i>
+      <span>TrafficSurveillance</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-section="upload"><i class="fas fa-upload"></i> Upload</a></li>
+      <li><a href="#" class="nav-link" data-section="processing"><i class="fas fa-cogs"></i> Processing</a></li>
+      <li><a href="#" class="nav-link" data-section="vehicles"><i class="fas fa-car"></i> Vehicles</a></li>
+      <li><a href="#" class="nav-link" data-section="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+      <li><a href="#" class="nav-link" data-section="dashboard"><i class="fas fa-chart-bar"></i> Dashboard</a></li>
+    </ul>
+    <div class="nav-status">
+      <span id="api-status" class="status-dot offline"></span>
+      <span id="api-status-text">Connecting…</span>
+    </div>
+  </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="container">
-            <!-- Upload Page -->
-            <section id="upload-page" class="page active">
-                <div class="page-header">
-                    <h2><i class="fas fa-video"></i> Upload Traffic Media</h2>
-                    <p>Upload video or image files for traffic analysis</p>
-                </div>
-                
-                <div class="upload-section">
-                    <div class="upload-options">
-                        <div class="option-card video-option active">
-                            <i class="fas fa-video"></i>
-                            <h3>Video Upload</h3>
-                            <p>Analyze traffic patterns from video footage</p>
-                        </div>
-                        <div class="option-card image-option">
-                            <i class="fas fa-image"></i>
-                            <h3>Image Upload</h3>
-                            <p>Analyze traffic from still images</p>
-                        </div>
-                        <div class="option-card live-option">
-                            <i class="fas fa-broadcast-tower"></i>
-                            <h3>Live Feed</h3>
-                            <p>Connect to live camera feed</p>
-                        </div>
-                    </div>
-                    
-                    <div class="upload-container">
-                        <div class="upload-area" id="upload-area">
-                            <div class="upload-icon">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                            </div>
-                            <h3>Drag & Drop Files Here</h3>
-                            <p>or click to browse files from your computer</p>
-                            <p class="file-info">Supports: MP4, AVI, MOV, JPG, PNG (Max 2GB)</p>
-                            <button class="btn btn-primary" id="browse-btn">Browse Files</button>
-                            <input type="file" id="file-input" accept="video/*,image/*" multiple hidden>
-                        </div>
-                        
-                        <div class="file-preview" id="file-preview">
-                            <h3>Selected Files</h3>
-                            <div class="files-list" id="files-list">
-                                <!-- Files will be added here -->
-                            </div>
-                            <div class="upload-actions">
-                                <button class="btn btn-primary" id="start-processing">
-                                    <i class="fas fa-play-circle"></i> Start Processing
-                                </button>
-                                <button class="btn btn-secondary" id="clear-files">
-                                    <i class="fas fa-trash"></i> Clear All
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="upload-stats">
-                        <div class="stat-card">
-                            <i class="fas fa-history"></i>
-                            <div>
-                                <h4>Recent Uploads</h4>
-                                <p class="stat-value">12 files</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-clock"></i>
-                            <div>
-                                <h4>Avg Processing Time</h4>
-                                <p class="stat-value">2.5 min</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <h4>Success Rate</h4>
-                                <p class="stat-value">98.5%</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Processing Page -->
-            <section id="processing-page" class="page">
-                <div class="page-header">
-                    <h2><i class="fas fa-cogs"></i> Processing Traffic Data</h2>
-                    <p>Real-time analysis of uploaded media</p>
-                </div>
-                
-                <div class="processing-container">
-                    <div class="processing-header">
-                        <div class="file-info">
-                            <h3>Processing: <span id="current-file">traffic_cam_001.mp4</span></h3>
-                            <p>Started: <span id="start-time">10:30 AM</span> | Duration: <span id="video-duration">2:15 min</span></p>
-                        </div>
-                        <div class="processing-timer">
-                            <i class="fas fa-clock"></i>
-                            <span id="timer">00:00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-section">
-                        <div class="progress-info">
-                            <h4>Overall Progress</h4>
-                            <span id="progress-percent">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="processing-steps">
-                        <div class="step completed" id="step1">
-                            <div class="step-icon">
-                                <i class="fas fa-file-upload"></i>
-                            </div>
-                            <h4>File Uploaded</h4>
-                            <p>Media file verified</p>
-                        </div>
-                        
-                        <div class="step active" id="step2">
-                            <div class="step-icon">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <h4>Vehicle Detection</h4>
-                            <p>Identifying vehicles</p>
-                            <div class="step-progress">
-                                <div class="step-progress-fill" style="width: 45%"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="step" id="step3">
-                            <div class="step-icon">
-                                <i class="fas fa-id-card"></i>
-                            </div>
-                            <h4>Plate Recognition</h4>
-                            <p>Reading license plates</p>
-                        </div>
-                        
-                        <div class="step" id="step4">
-                            <div class="step-icon">
-                                <i class="fas fa-car"></i>
-                            </div>
-                            <h4>Vehicle Classification</h4>
-                            <p>Categorizing vehicle types</p>
-                        </div>
-                        
-                        <div class="step" id="step5">
-                            <div class="step-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <h4>Violation Detection</h4>
-                            <p>Checking traffic rules</p>
-                        </div>
-                    </div>
-                    
-                    <div class="realtime-results">
-                        <h3>Real-time Detection</h3>
-                        <div class="results-grid">
-                            <div class="result-card">
-                                <i class="fas fa-car"></i>
-                                <div>
-                                    <h4>Vehicles Detected</h4>
-                                    <p class="count" id="vehicles-count">0</p>
-                                </div>
-                            </div>
-                            <div class="result-card">
-                                <i class="fas fa-id-badge"></i>
-                                <div>
-                                    <h4>Plates Identified</h4>
-                                    <p class="count" id="plates-count">0</p>
-                                </div>
-                            </div>
-                            <div class="result-card">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <div>
-                                    <h4>Violations Found</h4>
-                                    <p class="count" id="violations-count">0</p>
-                                </div>
-                            </div>
-                            <div class="result-card">
-                                <i class="fas fa-tachometer-alt"></i>
-                                <div>
-                                    <h4>Avg Speed</h4>
-                                    <p class="count" id="avg-speed">0 km/h</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="processing-actions">
-                        <button class="btn btn-secondary" id="pause-processing">
-                            <i class="fas fa-pause"></i> Pause
-                        </button>
-                        <button class="btn btn-danger" id="stop-processing">
-                            <i class="fas fa-stop"></i> Stop
-                        </button>
-                        <button class="btn btn-success" id="results-btn" disabled>
-                            <i class="fas fa-chart-bar"></i> View Results
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Output Page -->
-            <section id="output-page" class="page">
-                <div class="page-header">
-                    <h2><i class="fas fa-car"></i> Vehicle Detection Results</h2>
-                    <div class="header-actions">
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="search-vehicle" placeholder="Search by plate number...">
-                        </div>
-                        <button class="btn btn-primary" id="export-btn">
-                            <i class="fas fa-download"></i> Export Data
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="output-container">
-                    <div class="sidebar">
-                        <div class="filter-section">
-                            <h3>Filters</h3>
-                            <div class="filter-group">
-                                <label>Vehicle Type</label>
-                                <select id="filter-type">
-                                    <option value="all">All Types</option>
-                                    <option value="car">Car</option>
-                                    <option value="truck">Truck</option>
-                                    <option value="motorcycle">Motorcycle</option>
-                                    <option value="bus">Bus</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label>Violation Status</label>
-                                <select id="filter-violation">
-                                    <option value="all">All Vehicles</option>
-                                    <option value="violation">With Violations</option>
-                                    <option value="clean">No Violations</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label>Speed Range</label>
-                                <div class="speed-range">
-                                    <input type="range" id="speed-slider" min="0" max="150" value="150">
-                                    <span id="speed-value">0-150 km/h</span>
-                                </div>
-                            </div>
-                            <button class="btn btn-secondary" id="apply-filters">Apply Filters</button>
-                        </div>
-                        
-                        <div class="stats-section">
-                            <h3>Statistics</h3>
-                            <div class="stats-grid">
-                                <div class="stat-item">
-                                    <span class="stat-label">Total Vehicles</span>
-                                    <span class="stat-value" id="total-vehicles">0</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Violations</span>
-                                    <span class="stat-value violation-stat">0</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Avg Speed</span>
-                                    <span class="stat-value">0 km/h</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Processing Time</span>
-                                    <span class="stat-value">0s</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="main-content-area">
-                        <div class="content-header">
-                            <h3>Detected Vehicles</h3>
-                            <div class="view-options">
-                                <button class="view-btn active" data-view="grid"><i class="fas fa-th"></i></button>
-                                <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="vehicles-grid" id="vehicles-grid">
-                            <!-- Vehicle cards will be dynamically added -->
-                        </div>
-                        
-                        <div class="vehicle-details" id="vehicle-details">
-                            <div class="details-header">
-                                <h3>Vehicle Details</h3>
-                                <button class="close-details" id="close-details">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div class="details-content" id="details-content">
-                                <!-- Vehicle details will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Report Page -->
-            <section id="report-page" class="page">
-                <div class="page-header">
-                    <h2><i class="fas fa-file-alt"></i> Vehicle Reports</h2>
-                    <p>Generate detailed reports for vehicles and violations</p>
-                </div>
-                
-                <div class="report-container">
-                    <div class="report-search">
-                        <div class="search-card">
-                            <h3><i class="fas fa-search"></i> Search Vehicle</h3>
-                            <div class="search-inputs">
-                                <input type="text" id="report-plate" placeholder="Enter license plate">
-                                <button class="btn btn-primary" id="search-report">
-                                    <i class="fas fa-search"></i> Search
-                                </button>
-                            </div>
-                            <p class="search-hint">Example: ABC123, XYZ789, or use wildcards like AB*</p>
-                        </div>
-                        
-                        <div class="time-filter">
-                            <h3><i class="fas fa-calendar-alt"></i> Time Period</h3>
-                            <div class="date-inputs">
-                                <div class="date-group">
-                                    <label>From</label>
-                                    <input type="date" id="date-from" value="2023-10-01">
-                                </div>
-                                <div class="date-group">
-                                    <label>To</label>
-                                    <input type="date" id="date-to" value="2023-10-31">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="report-results" id="report-results">
-                        <div class="no-results" id="no-results">
-                            <i class="fas fa-search"></i>
-                            <h3>No Reports Generated</h3>
-                            <p>Search for a vehicle to generate a detailed report.</p>
-                        </div>
-                        
-                        <div class="report-content" id="report-content">
-                            <!-- Report content will be loaded here -->
-                        </div>
-                    </div>
-                    
-                    <div class="report-actions">
-                        <button class="btn btn-secondary" id="print-report">
-                            <i class="fas fa-print"></i> Print Report
-                        </button>
-                        <button class="btn btn-primary" id="export-report">
-                            <i class="fas fa-file-pdf"></i> Export as PDF
-                        </button>
-                        <button class="btn btn-success" id="email-report">
-                            <i class="fas fa-envelope"></i> Email Report
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Dashboard Page -->
-            <section id="dashboard-page" class="page">
-                <div class="page-header">
-                    <h2><i class="fas fa-chart-bar"></i> Analytics Dashboard</h2>
-                    <p>Real-time traffic analytics and insights</p>
-                </div>
-                
-                <div class="dashboard-container">
-                    <div class="dashboard-stats">
-                        <div class="stat-card-large">
-                            <i class="fas fa-car"></i>
-                            <div>
-                                <h3>Total Vehicles Today</h3>
-                                <p class="stat-number">1,247</p>
-                                <p class="stat-change"><i class="fas fa-arrow-up"></i> 12% from yesterday</p>
-                            </div>
-                        </div>
-                        <div class="stat-card-large">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <div>
-                                <h3>Violations Detected</h3>
-                                <p class="stat-number">89</p>
-                                <p class="stat-change"><i class="fas fa-arrow-down"></i> 5% from yesterday</p>
-                            </div>
-                        </div>
-                        <div class="stat-card-large">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <div>
-                                <h3>Avg Speed</h3>
-                                <p class="stat-number">58 km/h</p>
-                                <p class="stat-change"><i class="fas fa-minus"></i> Same as yesterday</p>
-                            </div>
-                        </div>
-                        <div class="stat-card-large">
-                            <i class="fas fa-clock"></i>
-                            <div>
-                                <h3>Processing Accuracy</h3>
-                                <p class="stat-number">96.8%</p>
-                                <p class="stat-change"><i class="fas fa-arrow-up"></i> 2% improvement</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="dashboard-charts">
-                        <div class="chart-container">
-                            <h3>Violations by Type</h3>
-                            <div class="chart" id="violations-chart">
-                                <!-- Chart will be created with JS -->
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <h3>Traffic Volume by Hour</h3>
-                            <div class="chart" id="traffic-chart">
-                                <!-- Chart will be created with JS -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="dashboard-tables">
-                        <div class="table-container">
-                            <h3>Recent Violations</h3>
-                            <div class="table-scroll">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Time</th>
-                                            <th>Vehicle</th>
-                                            <th>Violation</th>
-                                            <th>Speed</th>
-                                            <th>Location</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="violations-table">
-                                        <!-- Violations will be added dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div class="table-container">
-                            <h3>Top Violators</h3>
-                            <div class="table-scroll">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Plate Number</th>
-                                            <th>Violations</th>
-                                            <th>Last Seen</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="violators-table">
-                                        <!-- Violators will be added dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Traffic Surveillance System</h3>
-                    <p>Advanced AI-powered traffic monitoring and violation detection system.</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Contact</h3>
-                    <p><i class="fas fa-envelope"></i> support@trafficsurveillance.com</p>
-                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Documentation</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2023 Traffic Surveillance System. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-github"></i></a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Modal for Image Preview -->
-    <div class="modal" id="image-modal">
-        <div class="modal-content">
-            <button class="modal-close" id="close-modal">&times;</button>
-            <img id="modal-image" src="" alt="Vehicle Image">
-            <div class="modal-info" id="modal-info"></div>
-        </div>
+  <section id="upload" class="section active">
+    <div class="section-header">
+      <h1>Upload Traffic Media</h1>
+      <p>Upload video or image files for AI-powered traffic analysis</p>
     </div>
 
-    <!-- Loading Spinner -->
-    <div class="loading-spinner" id="loading-spinner">
-        <div class="spinner"></div>
-        <p>Processing...</p>
+    <div class="upload-cards">
+      <div class="upload-card" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-video"></i>
+        <h3>Video Upload</h3>
+        <p>Analyze traffic patterns from video footage</p>
+      </div>
+      <div class="upload-card" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-image"></i>
+        <h3>Image Upload</h3>
+        <p>Analyze traffic from still images</p>
+      </div>
+      <div class="upload-card disabled">
+        <i class="fas fa-satellite-dish"></i>
+        <h3>Live Feed</h3>
+        <p>Connect to live camera feed (coming soon)</p>
+      </div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="drop-zone" id="dropZone">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Drag &amp; Drop Files Here</h3>
+      <p>or click to browse files from your computer</p>
+      <small>Supports: MP4, AVI, MOV, JPG, PNG (Max 2 GB)</small>
+      <input type="file" id="fileInput" accept=".mp4,.avi,.mov,.mkv,.jpg,.jpeg,.png,.webp" multiple hidden />
+      <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-folder-open"></i> Browse Files
+      </button>
+    </div>
+
+    <div class="selected-files" id="selectedFiles" style="display:none">
+      <h3>Selected Files</h3>
+      <div id="fileList"></div>
+      <div class="file-actions">
+        <button class="btn btn-success" id="startProcessingBtn" onclick="startProcessing()">
+          <i class="fas fa-play"></i> Start Processing
+        </button>
+        <button class="btn btn-outline" onclick="clearFiles()">
+          <i class="fas fa-trash"></i> Clear All
+        </button>
+      </div>
+    </div>
+
+    <div class="upload-stats">
+      <div class="stat-card">
+        <span id="stat-uploads" class="stat-value">0</span>
+        <span class="stat-label">Total Uploads</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">2.5 min</span>
+        <span class="stat-label">Avg Processing Time</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">98.5%</span>
+        <span class="stat-label">Success Rate</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="processing" class="section">
+    <div class="section-header">
+      <h1>Processing Traffic Data</h1>
+      <p>Real-time analysis of uploaded media</p>
+    </div>
+
+    <div id="processingList">
+      <div class="no-jobs">
+        <i class="fas fa-inbox"></i>
+        <p>No jobs running. Upload a file to get started.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="vehicles" class="section">
+    <div class="section-header">
+      <h1>Vehicle Detection Results</h1>
+      <button class="btn btn-outline" onclick="exportCSV()">
+        <i class="fas fa-file-csv"></i> Export Data
+      </button>
+    </div>
+
+    <div class="filters-bar">
+      <div class="filter-group">
+        <label>Vehicle Type</label>
+        <select id="filterType" onchange="loadVehicles()">
+          <option value="">All Types</option>
+          <option value="car">Car</option>
+          <option value="truck">Truck</option>
+          <option value="motorcycle">Motorcycle</option>
+          <option value="bus">Bus</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Violation Status</label>
+        <select id="filterViolation" onchange="loadVehicles()">
+          <option value="">All Vehicles</option>
+          <option value="true">With Violations</option>
+          <option value="false">No Violations</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Search Plate</label>
+        <input type="text" id="filterPlate" placeholder="e.g. ABC123"
+               oninput="loadVehicles()" />
+      </div>
+    </div>
+
+    <div class="vehicles-stats">
+      <div class="stat-card">
+        <span id="v-total" class="stat-value">0</span>
+        <span class="stat-label">Total Vehicles</span>
+      </div>
+      <div class="stat-card violation">
+        <span id="v-violations" class="stat-value">0</span>
+        <span class="stat-label">Violations</span>
+      </div>
+      <div class="stat-card">
+        <span id="v-speed" class="stat-value">0 km/h</span>
+        <span class="stat-label">Avg Speed</span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="vehicleTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Type</th><th>License Plate</th>
+            <th>Confidence</th><th>Violation</th><th>Speed</th><th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="vehicleTableBody">
+          <tr><td colspan="7" class="empty-row">No vehicle data yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="reports" class="section">
+    <div class="section-header">
+      <h1>Vehicle Reports</h1>
+      <p>Generate detailed reports for vehicles and violations</p>
+    </div>
+
+    <div class="report-search">
+      <div class="search-row">
+        <input type="text" id="reportPlateInput"
+               placeholder="Enter license plate (e.g. ABC123, XYZ789)" />
+        <button class="btn btn-primary" onclick="generateReport()">
+          <i class="fas fa-search"></i> Search
+        </button>
+      </div>
+      <small>Search by plate number. Use partial match (e.g. AB* matches ABC123)</small>
+    </div>
+
+    <div class="date-range">
+      <label>From: <input type="date" id="reportFrom" /></label>
+      <label>To: <input type="date" id="reportTo" /></label>
+    </div>
+
+    <div id="reportResult" class="report-result" style="display:none; background:white; color:black; padding:20px;">
+      </div>
+
+    <div id="reportEmpty" class="report-empty">
+      <i class="fas fa-file-search"></i>
+      <p>Search for a vehicle to generate a detailed report.</p>
+    </div>
+
+    <div class="report-actions" id="reportActions" style="display:none">
+      <button class="btn btn-outline" onclick="printReport()">
+        <i class="fas fa-print"></i> Print Report
+      </button>
+      <button class="btn btn-outline" onclick="exportReportPDF()">
+        <i class="fas fa-file-pdf"></i> Export as PDF
+      </button>
+    </div>
+  </section>
+
+  <section id="dashboard" class="section">
+    <div class="section-header">
+      <h1>Analytics Dashboard</h1>
+      <p>Real-time traffic analytics and insights</p>
+      <button class="btn btn-outline btn-sm" onclick="loadDashboard()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+
+    <div class="dashboard-kpi">
+      <div class="kpi-card">
+        <div class="kpi-icon"><i class="fas fa-car"></i></div>
+        <div class="kpi-body">
+          <span id="d-total" class="kpi-value">0</span>
+          <span class="kpi-label">Total Vehicles Today</span>
+          <span id="d-total-delta" class="kpi-delta"></span>
+        </div>
+      </div>
+      <div class="kpi-card violation-kpi">
+        <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="kpi-body">
+          <span id="d-violations" class="kpi-value">0</span>
+          <span class="kpi-label">Violations Detected</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon"><i class="fas fa-tachometer-alt"></i></div>
+        <div class="kpi-body">
+          <span id="d-speed" class="kpi-value">65 km/h</span>
+          <span class="kpi-label">Avg Speed</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon"><i class="fas fa-bullseye"></i></div>
+        <div class="kpi-body">
+          <span id="d-accuracy" class="kpi-value">96.8%</span>
+          <span class="kpi-label">Processing Accuracy</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-charts">
+      <div class="chart-card">
+        <h3>Violations by Type</h3>
+        <canvas id="violationChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Traffic Volume by Hour</h3>
+        <canvas id="volumeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="dashboard-tables">
+      <div class="table-card">
+        <h3>Recent Violations</h3>
+        <table>
+          <thead><tr><th>Time</th><th>Vehicle</th><th>Type</th><th>Plate</th></tr></thead>
+          <tbody id="recentViolationsBody">
+            <tr><td colspan="4" class="empty-row">No data</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-card">
+        <h3>Top Violators</h3>
+        <table>
+          <thead><tr><th>Plate</th><th>Violations</th><th>Status</th></tr></thead>
+          <tbody id="topViolatorsBody">
+            <tr><td colspan="3" class="empty-row">No data</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div id="vehicleModal" class="modal" style="display:none" onclick="closeModal(event)">
+    <div class="modal-content">
+      <button class="modal-close" onclick="document.getElementById('vehicleModal').style.display='none'">
+        &times;
+      </button>
+      <h2 id="modalTitle">Vehicle Detail</h2>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div id="frameModal" class="modal" style="display:none" onclick="closeFrameModal(event)">
+    <div class="modal-content" style="max-width:800px; width:95%; padding:15px;">
+      <button class="modal-close" onclick="document.getElementById('frameModal').style.display='none'" style="top:10px; right:15px;">&times;</button>
+      <h2 style="margin: 5px 0 15px 5px; color:var(--accent);">Processed Evidence Frame</h2>
+      <img id="annotatedImage" style="width:100%; border-radius:8px; object-fit:contain; max-height:75vh; border:2px solid var(--border);" src="" />
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h4>Traffic Surveillance System</h4>
+        <p>Advanced AI-powered traffic monitoring and violation detection system.</p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>support@trafficsurveillance.com</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="footer-copy">© 2024 Traffic Surveillance System. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
